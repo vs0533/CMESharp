@@ -9,9 +9,8 @@
   },
   "profiles": {
     "IIS Express": {
-      "commandName": "Executable",
+      "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/values",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
