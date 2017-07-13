@@ -8,6 +8,7 @@ using CME.Framework.Runtime;
 using CME.Framework.Model;
 using System.Diagnostics;
 using CME.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CME.Api
 {
@@ -30,7 +31,8 @@ namespace CME.Api
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<dbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("SqlServer")));
-            services.AddDbContext<CMEDBContext>(
+
+            services.AddEntityFramework().AddDbContext<CMEDBContext>(
                 option => {
                     option.UseSqlServer(
                         Configuration.GetConnectionString("SqlServer"),
@@ -39,7 +41,7 @@ namespace CME.Api
                 }
             );
             services.Configure<EntityModelConfig>(Configuration.GetSection("EntityModelMetaConfig"));
-            services.AddScoped<IModelProvider, DefaultModelProvider>();
+            services.AddSingleton<IModelProvider, DefaultModelProvider>();
             // Add framework services.
             services.AddMvc();
         }

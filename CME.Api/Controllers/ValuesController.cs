@@ -15,20 +15,27 @@ namespace CME.Api.Controllers
     public class ValuesController : Controller
     {
         private readonly IModelProvider provider;
-        public ValuesController(IModelProvider provider)
+        private readonly CMEDBContext ctx;
+        public ValuesController(IModelProvider provider, CMEDBContext ctx)
         {
             this.provider = provider;
-
+            this.ctx = ctx;
         }
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            Type s= provider.GetType(new Guid("F5693226-E794-47BD-A7F1-A00CB2BDFBE3"));
+            Type[] s= provider.GetTypes();
 
-            DynamicEntity b =(DynamicEntity) Activator.CreateInstance(s);
-            b.Dispose();
-            
+            DynamicEntity b =(DynamicEntity) Activator.CreateInstance(s[0]);
+            //b["id"] = Guid.NewGuid();
+            b["UserCode"] = "tanglin";
+            b["Name"] = "唐林";
+            b["PassWord"] = "123123";
+            b["UnitId"] = Guid.NewGuid();
+            ctx.Add(b);
+            ctx.SaveChanges();
+
             return new string[] { "value1", "value2" };
         }
 

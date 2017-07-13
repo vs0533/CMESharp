@@ -27,6 +27,9 @@ namespace CME.Framework.Model
                 case "bool":
                     ep.PropertyType = meta.IsRequired ? typeof(bool) : typeof(bool?);
                     break;
+                case "guid":
+                    ep.PropertyType = meta.IsRequired ? typeof(Guid) : typeof(Guid?);
+                    break;
                 default:
                     throw new ArgumentNullException("类型参数无效");
             }

@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CME.Framework.Runtime
 {
@@ -28,7 +25,7 @@ namespace CME.Framework.Runtime
                         _resultMap = new Dictionary<Guid, Type>();
                         foreach (var item in _config.Value.Metas)
                         {
-                            var result = RuntimeBuilder.Builder(GetEntityFromMeta(item));
+                            var result = RuntimeBuilder.Builder(GetEntityFromMeta(item),true);
                             _resultMap.Add(item.EntityId, result);
                         }
                     }

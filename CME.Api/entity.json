@@ -27,8 +27,23 @@
           {
             "Name": "单位ID",
             "PropertyName": "UnitId",
-            "ValueType": "int",
+            "ValueType": "guid",
             "Foreign": "Unit.Id"
+          }
+        ]
+      },
+      {
+        "EntityId": "8DA82FD2-5CF1-47F7-9D6A-400172AEA5F9",
+        "EntityName": "用户单位",
+        "ClassName": "Unit",
+
+        "Properties": [
+          {
+            "Name": "单位名称",
+            "PropertyName": "UnitName",
+            "ValueType": "string",
+            "IsRequired": "true",
+            "Length": 50
           }
         ]
       }

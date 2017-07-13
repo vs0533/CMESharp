@@ -36,20 +36,22 @@ namespace CME.Data
                     {
                         mbuilder.Model.AddEntityType(item);
                     }
+                    
                     _cache.Set(DynamicCacheKey, mbuilder.Model);
                     return mbuilder.Model;
                 }
             );
+            optionsBuilder.UseModel(model);
             base.OnConfiguring(optionsBuilder);
         }
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    Type[] types = _modelprovider.GetTypes();
-        //    foreach (var item in types)
-        //    {
-        //        modelBuilder.Model.AddEntityType(item);
-        //    }
-        //    base.OnModelCreating(modelBuilder);
-        //}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            Type[] types = _modelprovider.GetTypes();
+            foreach (var item in types)
+            {
+                modelBuilder.Model.AddEntityType(item);
+            }
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
