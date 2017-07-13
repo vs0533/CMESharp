@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CME.Framework.Runtime
 {
-    public class DefaultModelProvider
+    public class DefaultModelProvider:IModelProvider
     {
         private Dictionary<Guid, Type> _resultMap = null;
         private readonly IOptions<EntityModelConfig> _config = null;
@@ -28,14 +28,24 @@ namespace CME.Framework.Runtime
                         _resultMap = new Dictionary<Guid, Type>();
                         foreach (var item in _config.Value.Metas)
                         {
-                            _resultMap.Add(item.EntityId, typeof(object));
+                            var result = RuntimeBuilder.Builder(GetEntityFromMeta(item));
+                            _resultMap.Add(item.EntityId, result);
                         }
                     }
                 }
                 return _resultMap;
             }
         }
-
+        public Type GetType(Guid modelId)
+        {
+            Dictionary<Guid, Type> map = Map;
+            Type result = null;
+            if (!map.TryGetValue(modelId,out result))
+            {
+                throw new NotSupportedException("没有找到指定ID的模型");
+            }
+            return result;
+        }
         public Type[] GetTypes() {
             Guid[] entityids = _config.Value.Metas.Select(c => c.EntityId).ToArray();
             return Map.Where(c => entityids.Contains(c.Key)).Select(c => c.Value).ToArray();
@@ -51,9 +61,9 @@ namespace CME.Framework.Runtime
                 EntityProperty ep = new EntityProperty();
                 ep.PropertyName = item.PropertyName;
                 
-                ep.Attributes.Add(item.UseIsRequest());
-                ep.Attributes.Add(item.UseStringLength());
-                ep.PropertyType = item.GetType();
+                ep.UseIsRequest(item);
+                ep.UseStringLength(item);
+                ep.UseType(item);
 
                 entity.Propertys.Add(ep);
             }

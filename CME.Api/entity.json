@@ -1,0 +1,37 @@
+﻿{
+  "EntityModelMetaConfig": {
+    "Metas": [
+      {
+        "EntityId": "F5693226-E794-47BD-A7F1-A00CB2BDFBE3",
+        "EntityName": "用户",
+        "ClassName": "User",
+
+        "Properties": [
+          {
+            "Name": "用户代码",
+            "PropertyName": "UserCode",
+            "ValueType": "string",
+            "IsRequired": "true",
+            "Length": 50
+          },
+          {
+            "Name": "用户名",
+            "PropertyName": "Name",
+            "ValueType": "string"
+          },
+          {
+            "Name": "用户密码",
+            "PropertyName": "PassWord",
+            "ValueType": "string"
+          },
+          {
+            "Name": "单位ID",
+            "PropertyName": "UnitId",
+            "ValueType": "int",
+            "Foreign": "Unit.Id"
+          }
+        ]
+      }
+    ]
+  }
+}

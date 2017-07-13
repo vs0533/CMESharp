@@ -11,36 +11,49 @@ namespace CME.Framework.Model
     public static class Extentsion
     {
         
-        public static Type GetType(this EntityPropertyMeta meta)
+        public static void UseType(this EntityProperty ep, EntityPropertyMeta meta)
         {
-            switch (meta.PropertyName)
+            switch (meta.ValueType)
             {
                 case "string":
-                    return  typeof(string);
+                    ep.PropertyType = typeof(string);
+                    break;
                 case "int":
-                    return meta.IsRequired ? typeof(int) : typeof(int?);
+                    ep.PropertyType = meta.IsRequired ? typeof(int) : typeof(int?);
+                    break;
                 case "datetime":
-                    return meta.IsRequired ? typeof(DateTime) : typeof(DateTime?);
+                    ep.PropertyType = meta.IsRequired ? typeof(DateTime) : typeof(DateTime?);
+                    break;
                 case "bool":
-                    return meta.IsRequired ? typeof(bool) : typeof(bool?); 
+                    ep.PropertyType = meta.IsRequired ? typeof(bool) : typeof(bool?);
+                    break;
                 default:
                     throw new ArgumentNullException("类型参数无效");
             }
         }
-        public static EntityAttribute UseIsRequest(this EntityPropertyMeta meta)
+        public static void UseIsRequest(this EntityProperty ep, EntityPropertyMeta meta)
         {
-            EntityAttribute ea = new EntityAttribute();
-            ea.AttributeType = typeof(RequiredAttribute);
-            return ea.AttachErrorMessage(string.Format("必须输入{0}",meta.Name));
+            if (meta.IsRequired)
+            {
+                EntityAttribute ea = new EntityAttribute();
+                ea.AttributeType = typeof(RequiredAttribute);
+                ea.AttachErrorMessage(string.Format("必须输入{0}", meta.Name));
+                ep.Attributes.Add(ea);
+            }
+            
         }
-        public static EntityAttribute UseStringLength(this EntityPropertyMeta meta)
+        public static void UseStringLength(this EntityProperty ep, EntityPropertyMeta meta)
         {
-            EntityAttribute ea = new EntityAttribute();
-            ea.AttributeType = typeof(StringLengthAttribute);
-            ea.ConstructorArgTypes = new Type[] { typeof(int) };
-            ea.ConstructorArgValues = new object[] { meta.Length };
-            ea.AttachErrorMessage(string.Format("{0}长度不能超过{1}",meta.Name,meta.Length));
-            return ea;
+            if (meta.Length > 0)
+            {
+                EntityAttribute ea = new EntityAttribute();
+                ea.AttributeType = typeof(StringLengthAttribute);
+                ea.ConstructorArgTypes = new Type[] { typeof(int) };
+                ea.ConstructorArgValues = new object[] { meta.Length };
+                ea.AttachErrorMessage(string.Format("{0}长度不能超过{1}", meta.Name, meta.Length));
+                ep.Attributes.Add(ea);
+            }
+            
         }
         private static EntityAttribute AttachErrorMessage(this EntityAttribute ea,string msg)
         {
