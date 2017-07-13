@@ -12,17 +12,30 @@ namespace CME.Framework.Runtime
     public class RuntimeBuilder
     {
         private static ModuleBuilder moduleBuilder;
+        private static AssemblyName assemName = new AssemblyName("WSRC.Runtime");
         static RuntimeBuilder()
         {
-            AssemblyName assemName = new AssemblyName("WSRC.Runtime");
-            moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.Run).DefineDynamicModule("WSCME.Runtime");
+            moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("WSCME.Runtime");
         }
 
-        public static Type Builder(Entity entity)
+        public static Type Builder(Entity entity,bool redDefine = false)
         {
+            var define = moduleBuilder.Assembly.DefinedTypes.FirstOrDefault(c => c.Name == entity.TypeName);
+            if (define != null)
+            {
+                if (redDefine)
+                {
+                    moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("WSCME.Runtime");
+                }
+                else
+                {
+                    return define.UnderlyingSystemType;
+                }
+            }
+            
             TypeBuilder builder = moduleBuilder.DefineType(entity.TypeName, TypeAttributes.Public);
             CustomAttributeBuilder tableAttributeBuilder = new CustomAttributeBuilder(
-                typeof(TableAttribute).GetConstructor(new Type[] { typeof(string) }),
+                typeof(TableAttribute).GetConstructor(new Type[1] { typeof(string) }),
                 new object[] { entity.TypeName }
             );
             builder.SetParent(entity.BaseType);
@@ -59,7 +72,7 @@ namespace CME.Framework.Runtime
 
             MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Public;
             MethodBuilder getMethodBuilder = builder.DefineMethod(
-                string.Format("get_{0}", property.PropertyName),
+                "get_" + property.PropertyName,
                 attributes,
                 property.PropertyType,
                 Type.EmptyTypes

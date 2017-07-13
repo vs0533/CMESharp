@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CME.Framework.Runtime;
+using System.Reflection;
+using System.Reflection.Emit;
+using CME.Data;
+using CME.Framework.Model;
 
 namespace CME.Api.Controllers
 {
@@ -20,7 +24,11 @@ namespace CME.Api.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            Type[] s= provider.GetTypes();
+            Type s= provider.GetType(new Guid("F5693226-E794-47BD-A7F1-A00CB2BDFBE3"));
+
+            DynamicEntity b =(DynamicEntity) Activator.CreateInstance(s);
+            b.Dispose();
+            
             return new string[] { "value1", "value2" };
         }
 

@@ -29,9 +29,15 @@ namespace CME.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Debug.Write("开始");
             //services.AddDbContext<dbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("SqlServer")));
-            services.AddDbContext<CMEDBContext>(option => option.UseSqlServer(Configuration.GetConnectionString("SqlServer")));
+            services.AddDbContext<CMEDBContext>(
+                option => {
+                    option.UseSqlServer(
+                        Configuration.GetConnectionString("SqlServer"),
+                        sql => { sql.UseRowNumberForPaging(); sql.MaxBatchSize(50);}
+                    );
+                }
+            );
             services.Configure<EntityModelConfig>(Configuration.GetSection("EntityModelMetaConfig"));
             services.AddScoped<IModelProvider, DefaultModelProvider>();
             // Add framework services.

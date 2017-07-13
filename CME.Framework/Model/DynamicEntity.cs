@@ -9,40 +9,41 @@ using System.Threading.Tasks;
 
 namespace CME.Framework.Model
 {
-    public class DynamicEntity
+    public class DynamicEntity:IDisposable
     {
-        private Dictionary<object, object> _attrs;
 
+        private Dictionary<object, object> _attrs;
         public DynamicEntity()
         {
             _attrs = new Dictionary<object, object>();
         }
-        public DynamicEntity(Dictionary<object,object> dict)
+        public DynamicEntity(Dictionary<object, object> dic)
         {
-            _attrs = dict;
+            _attrs = dic;
         }
         public static DynamicEntity Parse(object obj)
         {
             DynamicEntity model = new DynamicEntity();
-            foreach (PropertyInfo item in obj.GetType().GetProperties())
+            foreach (PropertyInfo info in obj.GetType().GetProperties())
             {
-                model._attrs.Add(item.Name, item.GetValue(obj, null));
+                model._attrs.Add(info.Name, info.GetValue(obj, null));
             }
             return model;
         }
         public T GetValue<T>(string field)
         {
-            object obj = null;
-            if (!_attrs.TryGetValue(field,out obj))
+            object obj2 = null;
+            if (!_attrs.TryGetValue(field, out obj2))
             {
                 _attrs.Add(field, default(T));
             }
-            if (obj == null)
+            if (obj2 == null)
             {
                 return default(T);
             }
-            return (T)obj;
+            return (T)obj2;
         }
+
         public void SetValue<T>(string field, T value)
         {
             if (_attrs.ContainsKey(field))
@@ -54,28 +55,35 @@ namespace CME.Framework.Model
                 _attrs.Add(field, value);
             }
         }
+
+        public void Dispose()
+        {
+            GC.ReRegisterForFinalize(this);
+        }
+
         [JsonIgnore]
         public Dictionary<object, object> Attrs
         {
-            get { return _attrs; }
-        }
-        [JsonIgnore]
-        public string[] Keys {
-            get {
-                return _attrs.Keys.Select(m => m.ToString()).ToArray();
+            get
+            {
+                return _attrs;
             }
         }
-        public object this[string key] {
-            get {
-                object obj = null;
-                if (_attrs.TryGetValue(key,out obj))
+        //提供索引方式操作属性值
+        public object this[string key]
+        {
+            get
+            {
+                object obj2 = null;
+                if (_attrs.TryGetValue(key, out obj2))
                 {
-                    return obj;
+                    return obj2;
                 }
-                return obj;
+                return null;
             }
-            set {
-                if (_attrs.Any(c => string.Compare(c.Key.ToString(), key, true) != -1))
+            set
+            {
+                if (_attrs.Any(m => string.Compare(m.Key.ToString(), key, true) != -1))
                 {
                     _attrs[key] = value;
                 }
@@ -85,20 +93,24 @@ namespace CME.Framework.Model
                 }
             }
         }
-        public Guid Id {
-            get {
-                return GetValue<Guid>("Id");
-            }
-            set {
-                SetValue<Guid>("Id", value);
+        [JsonIgnore]
+        public string[] Keys
+        {
+            get
+            {
+                return _attrs.Keys.Select(m => m.ToString()).ToArray();
             }
         }
-        public DateTime CreateTime {
-            get {
-                return GetValue<DateTime>("CreateTime");
+
+        public Guid Id
+        {
+            get
+            {
+                return GetValue<Guid>("Id");
             }
-            set {
-                SetValue<DateTime>("CreateTime", value);
+            set
+            {
+                SetValue("Id", value);
             }
         }
         [Timestamp]
