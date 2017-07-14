@@ -29,11 +29,6 @@
             "PropertyName": "UnitId",
             "ValueType": "guid",
             "Foreign": "Unit.Id"
-          },
-          {
-            "Name": "单位导航",
-            "PropertyName": "Units",
-            "ValueType": "list"
           }
         ]
       },

@@ -8,7 +8,7 @@ using CME.Data;
 namespace CME.Data.Migrations
 {
     [DbContext(typeof(CMEDBContext))]
-    [Migration("20170714113127_init")]
+    [Migration("20170714144459_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
