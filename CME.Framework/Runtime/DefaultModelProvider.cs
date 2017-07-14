@@ -1,4 +1,5 @@
 ﻿using CME.Framework.Model;
+using CME.Framework.Extentsion;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,16 @@ namespace CME.Framework.Runtime
             if (!map.TryGetValue(modelId,out result))
             {
                 throw new NotSupportedException("没有找到指定ID的模型");
+            }
+            return result;
+        }
+        public Type GetType(string typeName)
+        {
+            Dictionary<Guid, Type> map = Map;
+            var result = map.FirstOrDefault(c => c.Value.Name == typeName).Value;
+            if (result == null)
+            {
+                throw new NotSupportedException("没有找到指定typeName的模型");
             }
             return result;
         }

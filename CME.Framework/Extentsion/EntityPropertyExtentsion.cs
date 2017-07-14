@@ -1,14 +1,11 @@
-﻿using System;
+﻿using CME.Framework.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CME.Framework.Model
+namespace CME.Framework.Extentsion
 {
-    public static class Extentsion
+    public static class EntityPropertyExtentsion
     {
         
         public static void UseType(this EntityProperty ep, EntityPropertyMeta meta)

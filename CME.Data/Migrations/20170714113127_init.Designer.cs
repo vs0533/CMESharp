@@ -8,8 +8,8 @@ using CME.Data;
 namespace CME.Data.Migrations
 {
     [DbContext(typeof(CMEDBContext))]
-    [Migration("20170713160230_init1")]
-    partial class init1
+    [Migration("20170714113127_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -12,23 +12,23 @@ namespace CME.Framework.Model
     public class EntityAttribute
     {
         /// <summary>
-        /// 标注的类型
+        /// 特性标注的类型
         /// </summary>
         public Type AttributeType { get; set; }
         /// <summary>
-        /// 标注类型的构造函数参数类型列表
+        /// 特性标注类型的构造函数参数类型列表
         /// </summary>
         public Type[] ConstructorArgTypes { get; set; }
         /// <summary>
-        /// 标注类型的构造函数参数值列表
+        /// 特性标注类型的构造函数参数值列表
         /// </summary>
         public object[] ConstructorArgValues { get; set; }
         /// <summary>
-        /// 标注类型的属性名称
+        /// 特性标注类型的属性名称
         /// </summary>
         public string[] Properties { get; set; }
         /// <summary>
-        /// 标注类型的属性值
+        /// 特性标注类型的属性值
         /// </summary>
         public object[] PropertyValues { get; set; }
     }
