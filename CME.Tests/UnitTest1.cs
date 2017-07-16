@@ -6,6 +6,8 @@ using CME.Framework.Model;
 using CME.Framework.Runtime;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace CME.Tests
 {
@@ -26,9 +29,6 @@ namespace CME.Tests
         public IConfigurationRoot Configuration { get; }
         public UnitTest1()
         {
-            //var optionBuilder = new DbContextOptionsBuilder<CMEDBContext>();
-            //optionBuilder.UseInMemoryDatabase();
-            //_options = optionBuilder.Options;
             var jsonpath = System.IO.Directory.GetParent(AppContext.BaseDirectory).Parent.Parent;
             var builder = new ConfigurationBuilder()
                 .SetBasePath(jsonpath.FullName)
@@ -50,7 +50,7 @@ namespace CME.Tests
                 options.UseSqlServer("server=.;uid=sa;pwd=Abc@123;database=CMESharp_System")
             );
             _serviceCollection.AddScoped<EntityModelConfigService>();
-            _serviceCollection.AddSingleton<IModelProvider, DefaultModelProvider>();
+            _serviceCollection.AddScoped<IModelProvider, DefaultModelProvider>();
             _serviceCollection.AddScoped<IDynamicEntityRepository, DynamicEntityRepository>();
             //optionBuilder.
         }
@@ -323,6 +323,20 @@ namespace CME.Tests
 
             repository.Delete("User", string.Format("Id <> \"{0}\"", Guid.Empty));
             repository.Save();
+        }
+        [TestMethod]
+        public void TestInMemoryCache()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+
+            IMemoryCache cache = provider.GetService<IMemoryCache>();
+            var modelprovider = provider.GetService<IModelProvider>();
+            //var q = modelprovider.GetTypes();
+
+            //var q1 = modelprovider.GetTypes();
+            //cache.Remove("TypCache");
+            //var q2 = modelprovider.GetTypes();
+            modelprovider.ClearCacheReLoad();
         }
 
 

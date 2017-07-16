@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CME.Framework.Data;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CME.Framework.Runtime
 {
@@ -13,27 +15,31 @@ namespace CME.Framework.Runtime
         private Dictionary<Guid, Type> _resultMap = null;
         private readonly EntityModelConfigService _modelConfigService = null;
         private readonly IEnumerable<Data.EntityMeta> _entityMeta = null;
+        private readonly IMemoryCache _cache = null;
+        private static string typeCacheKey = "TypCache";
         private object _lock = new object();
-        public DefaultModelProvider(EntityModelConfigService _modelConfigService)
+        public DefaultModelProvider(EntityModelConfigService _modelConfigService,IMemoryCache cache)
         {
             this._modelConfigService = _modelConfigService;
             this._entityMeta = _modelConfigService.GetEntityMetas();
+            this._cache = cache;
         }
 
         public Dictionary<Guid,Type> Map {
             get {
-                if (_resultMap == null)
-                {
-                    lock (_lock)
+                _resultMap = _cache.GetOrCreate(
+                    typeCacheKey,
+                    resultmap =>
                     {
                         _resultMap = new Dictionary<Guid, Type>();
                         foreach (var item in _modelConfigService.GetEntityMetas())
                         {
-                            var result = RuntimeBuilder.Builder(GetEntityFromMeta(item),true);
+                            var result = RuntimeBuilder.Builder(GetEntityFromMeta(item), true);
                             _resultMap.Add(item.Id, result);
                         }
+                        return _resultMap;
                     }
-                }
+                );
                 return _resultMap;
             }
         }
@@ -79,6 +85,26 @@ namespace CME.Framework.Runtime
                 entity.Propertys.Add(ep);
             }
             return entity;
+        }
+        public void ClearCacheReLoad()
+        {
+            var typecache = _cache.Get<Dictionary<Guid, Type>>("typeCacheKey");
+            var modelcache = _cache.Get<IMutableModel>("DynamicModel");
+            var modelconfig = _cache.Get<IEnumerable<EntityMeta>>("ModelConfigCache");
+
+            if (typecache != null)
+            {
+                _cache.Remove("typeCacheKey");
+            }
+            if (modelcache != null)
+            {
+                _cache.Remove("DynamicModel");
+            }
+            if (modelconfig != null)
+            {
+                _cache.Remove("ModelConfigCache");
+            }
+
         }
     }
 }

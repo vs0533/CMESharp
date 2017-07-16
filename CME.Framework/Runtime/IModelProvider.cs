@@ -11,5 +11,7 @@ namespace CME.Framework.Runtime
         Type GetType(Guid modelId);
         Type[] GetTypes();
         Type GetType(string typeName);
+
+        void ClearCacheReLoad();
     }
 }
