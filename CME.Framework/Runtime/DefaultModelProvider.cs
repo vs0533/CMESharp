@@ -4,17 +4,20 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CME.Framework.Data;
 
 namespace CME.Framework.Runtime
 {
     public class DefaultModelProvider:IModelProvider
     {
         private Dictionary<Guid, Type> _resultMap = null;
-        private readonly IOptions<EntityModelConfig> _config = null;
+        private readonly EntityModelConfigService _modelConfigService = null;
+        private readonly IEnumerable<Data.EntityMeta> _entityMeta = null;
         private object _lock = new object();
-        public DefaultModelProvider(IOptions<EntityModelConfig> config)
+        public DefaultModelProvider(EntityModelConfigService _modelConfigService)
         {
-            this._config = config;
+            this._modelConfigService = _modelConfigService;
+            this._entityMeta = _modelConfigService.GetEntityMetas();
         }
 
         public Dictionary<Guid,Type> Map {
@@ -24,10 +27,10 @@ namespace CME.Framework.Runtime
                     lock (_lock)
                     {
                         _resultMap = new Dictionary<Guid, Type>();
-                        foreach (var item in _config.Value.Metas)
+                        foreach (var item in _modelConfigService.GetEntityMetas())
                         {
                             var result = RuntimeBuilder.Builder(GetEntityFromMeta(item),true);
-                            _resultMap.Add(item.EntityId, result);
+                            _resultMap.Add(item.Id, result);
                         }
                     }
                 }
@@ -55,7 +58,7 @@ namespace CME.Framework.Runtime
             return result;
         }
         public Type[] GetTypes() {
-            Guid[] entityids = _config.Value.Metas.Select(c => c.EntityId).ToArray();
+            Guid[] entityids = _entityMeta.Select(c => c.Id).ToArray();
             return Map.Where(c => entityids.Contains(c.Key)).Select(c => c.Value).ToArray();
         }
 

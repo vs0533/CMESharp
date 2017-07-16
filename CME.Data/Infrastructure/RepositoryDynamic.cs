@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using CME.Framework.Model;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore;
+﻿using CME.Framework.Model;
 using CME.Framework.Runtime;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Linq.Dynamic.Core;
+using System.Reflection;
+
 
 namespace CME.Data.Infrastructure
 {
@@ -50,9 +53,11 @@ namespace CME.Data.Infrastructure
             dataContext.Remove(entity);
         }
 
-        public void Delete(Expression<Func<DynamicEntity, bool>> where)
+        public void Delete(string entityName,string where)
         {
-            throw new NotImplementedException();
+            var type = modelprovider.GetType(entityName);
+            var query = this.GetQueryByEntity(type).FirstOrDefault(where);
+            Delete(query);
         }
 
         public DynamicEntity Get(Expression<Func<DynamicEntity, bool>> where)
@@ -80,6 +85,15 @@ namespace CME.Data.Infrastructure
         public void Update(DynamicEntity entity)
         {
             throw new NotImplementedException();
+        }
+
+        public IQueryable GetQueryByEntity(Type entityType)
+        {
+            var query = this.dataContext.GetType()
+                .GetTypeInfo()
+                .GetMethod("Set").MakeGenericMethod(entityType)
+                .Invoke(this.dataContext, null) as IQueryable;
+            return query;
         }
     }
 }

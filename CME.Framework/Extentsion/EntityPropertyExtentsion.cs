@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CME.Framework.Data;
 
 namespace CME.Framework.Extentsion
 {

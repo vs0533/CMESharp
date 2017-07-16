@@ -12,10 +12,10 @@ namespace CME.Framework.Runtime
     public class RuntimeBuilder
     {
         private static ModuleBuilder moduleBuilder;
-        private static AssemblyName assemName = new AssemblyName("WSRC.Runtime");
+        private static AssemblyName assemName = new AssemblyName("CME.Runtime");
         static RuntimeBuilder()
         {
-            moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("WSCME.Runtime");
+            moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("CME.Runtime");
         }
 
         public static Type Builder(Entity entity,bool redDefine = false)
@@ -25,7 +25,7 @@ namespace CME.Framework.Runtime
             {
                 if (redDefine)
                 {
-                    moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("WSCME.Runtime");
+                    moduleBuilder = AssemblyBuilder.DefineDynamicAssembly(assemName, AssemblyBuilderAccess.RunAndCollect).DefineDynamicModule("CME.Runtime");
                 }
                 else
                 {

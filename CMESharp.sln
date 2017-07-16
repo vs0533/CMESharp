@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CME.Utils", "CME.Utils\CME.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CME.Data", "CME.Data\CME.Data.csproj", "{976E38DF-9A03-45AB-89BF-83C58C953734}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CME.Tests", "CME.Tests\CME.Tests.csproj", "{983635D3-0AE1-45B5-BCE7-A94FD70D2D47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CME.Tests", "CME.Tests\CME.Tests.csproj", "{983635D3-0AE1-45B5-BCE7-A94FD70D2D47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,5 +1,6 @@
 using CME.Data;
 using CME.Data.Repositories;
+using CME.Framework.Data;
 using CME.Framework.Extentsion;
 using CME.Framework.Model;
 using CME.Framework.Runtime;
@@ -8,14 +9,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.DynamicLinq;
-using System.Linq.Dynamic.Core;
 using Newtonsoft.Json;
-using System.Collections;
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Reflection;
 
 namespace CME.Tests
 {
@@ -47,15 +46,16 @@ namespace CME.Tests
                     }
                 );
 
-            _serviceCollection.Configure<EntityModelConfig>(
-                Configuration.GetSection("EntityModelMetaConfig")
-                );
+            _serviceCollection.AddDbContext<RuntimeDbContext>(options =>
+                options.UseSqlServer("server=.;uid=sa;pwd=Abc@123;database=CMESharp_System")
+            );
+            _serviceCollection.AddScoped<EntityModelConfigService>();
             _serviceCollection.AddSingleton<IModelProvider, DefaultModelProvider>();
             _serviceCollection.AddScoped<IDynamicEntityRepository, DynamicEntityRepository>();
             //optionBuilder.
         }
         [TestMethod]
-        public void TestMethod1()
+        public void TestAddData()
         {
             IServiceProvider provider = _serviceCollection.BuildServiceProvider();
             var modelprovider = provider.GetService<IModelProvider>();
@@ -81,7 +81,23 @@ namespace CME.Tests
                 var type = modelprovider.GetType("User");
                 var type1 = modelprovider.GetType("Unit");
             }
+        }
 
+        [TestMethod]
+        public void TestDynamicReporisoty()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            var dynamicRepository = provider.GetService<IDynamicEntityRepository>();
+
+            var typeUser = modelprovider.GetType("User");
+            var query = dynamicRepository.GetQueryByEntity(typeUser);
+
+            var result = query.Where("UserCode = \"tanglin\"").ToDynamicArray();
+            var rstr = JsonConvert.SerializeObject(result);
+            Assert.IsNotNull(result);
+           
         }
         [TestMethod]
         public void TestProperty()
@@ -94,6 +110,7 @@ namespace CME.Tests
 
             using (var ctx = provider.GetService<CMEDBContext>())
             {
+                
                 var userq =
                    ctx.GetType()
                    .GetTypeInfo()
@@ -127,6 +144,88 @@ namespace CME.Tests
                 ctx.SaveChanges();
             }
         }
-        
+        [TestMethod]
+        public void TestDeleteWhere()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var repository = provider.GetService<IDynamicEntityRepository>();
+
+            //repository.Delete("User","");
+        }
+        [TestMethod]
+        public void TestInitEntityModelConfig()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var entityModelConfigService = provider.GetService<EntityModelConfigService>();
+            using (var ctx = provider.GetService<RuntimeDbContext>())
+            {
+                ctx.Database.EnsureDeleted();
+                ctx.Database.EnsureCreated();
+                EntityMetaGroup group = new EntityMetaGroup();
+                group.Name = "默认分组";
+
+                EntityMeta meta_User = new EntityMeta();
+                meta_User.ClassName = "User";
+                meta_User.EntityMetaGroup = group;
+                meta_User.EntityName = "单位用户";
+                meta_User.Properties = new List<EntityPropertyMeta> {
+                    new EntityPropertyMeta{
+                        Name = "用户代码",
+                        PropertyName = "UserCode",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    },
+                    new EntityPropertyMeta{
+                        Name = "用户名",
+                        PropertyName = "Name",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    },
+                    new EntityPropertyMeta{
+                        Name = "用户密码",
+                        PropertyName = "PassWord",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    },
+                    new EntityPropertyMeta{
+                        Name = "单位ID",
+                        PropertyName = "UnitId",
+                        ValueType = "guid",
+                        IsRequired = true,
+                        Foreign = "Unit.Id"
+                    }
+                };
+
+                EntityMeta meta_Unit = new EntityMeta();
+                meta_Unit.ClassName = "Unit";
+                meta_Unit.EntityMetaGroup = group;
+                meta_Unit.EntityName = "单位信息";
+                meta_Unit.Properties = new List<EntityPropertyMeta> {
+                    new EntityPropertyMeta{
+                        Name = "单位名称",
+                        PropertyName = "Name",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    },
+                    new EntityPropertyMeta{
+                        Name = "单位级别",
+                        PropertyName = "Level",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    }
+                };
+
+                ctx.Add(meta_User);
+                ctx.Add(meta_Unit);
+                ctx.SaveChanges();
+                
+            }
+
+        }
     }
 }
