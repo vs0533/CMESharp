@@ -16,6 +16,5 @@ namespace CME.Data.Repositories
     }
     public interface IDynamicEntityRepository : IRepositoryDynamic
     {
-
     }
 }

@@ -60,31 +60,39 @@ namespace CME.Data.Infrastructure
             Delete(query);
         }
 
-        public DynamicEntity Get(Expression<Func<DynamicEntity, bool>> where)
+        public DynamicEntity Get(string typeName,string where)
         {
-            throw new NotImplementedException();
+            var type = modelprovider.GetType(typeName);
+            var query = this.GetQueryByEntity(type).FirstOrDefault(where);
+            return query;
         }
 
-        public IEnumerable<DynamicEntity> GetAll()
+        public IEnumerable<DynamicEntity> GetAll(string typeName)
         {
-            throw new NotImplementedException();
+            var type = modelprovider.GetType(typeName);
+            var query = this.GetQueryByEntity(type).ToDynamicArray<DynamicEntity>();
+            return query;
         }
 
-        public DynamicEntity GetById(Guid Id)
+        public DynamicEntity GetById(string typeName,Guid Id)
         {
-            throw new NotImplementedException();
+            var type = modelprovider.GetType(typeName);
+            var query = this.GetQueryByEntity(type).FirstOrDefault("Id = @0", Id);
+            return query;
         }
 
-        public IEnumerable<DynamicEntity> GetMany(Expression<Func<DynamicEntity, bool>> where)
+        public IEnumerable<DynamicEntity> GetMany(string typeName,string where)
         {
-            throw new NotImplementedException();
+            var type = modelprovider.GetType(typeName);
+            var query = this.GetQueryByEntity(type).Where(where).ToDynamicList<DynamicEntity>();
+            return query;
         }
 
         
 
         public void Update(DynamicEntity entity)
         {
-            throw new NotImplementedException();
+            this.dataContext.Update(entity);
         }
 
         public IQueryable GetQueryByEntity(Type entityType)

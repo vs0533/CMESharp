@@ -145,7 +145,7 @@ namespace CME.Tests
             }
         }
         [TestMethod]
-        public void TestDeleteWhere()
+        public void TestRepositoryDeleteWhere()
         {
             IServiceProvider provider = _serviceCollection.BuildServiceProvider();
             var repository = provider.GetService<IDynamicEntityRepository>();
@@ -227,5 +227,104 @@ namespace CME.Tests
             }
 
         }
+        [TestMethod]
+        public void TestRepositoryAdd()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var ctx = provider.GetService<CMEDBContext>();
+            
+            var repository = provider.GetService<IDynamicEntityRepository>();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            ctx.Database.EnsureDeleted();
+            ctx.Database.EnsureCreated();
+
+            var type_User = modelprovider.GetType("User");
+            var user = type_User.Instan();
+
+            //string jsondata = "{\"User\":{\"UserCode\":\"tanglin\",\"Name\":\"唐林\",\"PassWord\":\"123123\"} }";
+
+            //JsonConvert.DeserializeObject<DynamicEntity>(jsondata);
+
+            string ucode = "UserCode";
+
+            user[ucode] = "tanglin";
+            user["Name"] = "唐林";
+            user["PassWord"] = "123123";
+            user["CreateTime"] = DateTime.Now;
+
+            repository.Add(user);
+            repository.Save();
+
+        }
+        [TestMethod]
+        public void TestRepositoryQuery()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var ctx = provider.GetService<CMEDBContext>();
+
+            var repository = provider.GetService<IDynamicEntityRepository>();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            var type_User = modelprovider.GetType("User");
+            var user = type_User.Instan();
+
+            var q1 = repository.GetById("User", new Guid("35A62370-27F4-48A2-8FE7-08D4CC310223"));
+
+            var q2 = repository.Get("User", "Id <> \"35A62370-27F4-48A2-8FE7-08D4CC310223\"");
+        }
+
+        [TestMethod]
+        public void TestRepositoryEdit()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var ctx = provider.GetService<CMEDBContext>();
+
+            var repository = provider.GetService<IDynamicEntityRepository>();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            var type_User = modelprovider.GetType("User");
+            var user = type_User.Instan();
+
+            var q = repository.Get("User",string.Format("Id <> \"{0}\"",Guid.Empty));
+
+            q["Name"] = "更改第一条";
+
+            repository.Update(q);
+            repository.Save();
+        }
+        [TestMethod]
+        public void TestRepositoryDelete()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var ctx = provider.GetService<CMEDBContext>();
+
+            var repository = provider.GetService<IDynamicEntityRepository>();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            var type_User = modelprovider.GetType("User");
+            var user = type_User.Instan();
+
+            var q = repository.Get("User", string.Format("Id <> \"{0}\"", Guid.Empty));
+            repository.Delete(q);
+            repository.Save();
+        }
+        [TestMethod]
+        public void TestRepositoryDelete_Where()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var ctx = provider.GetService<CMEDBContext>();
+
+            var repository = provider.GetService<IDynamicEntityRepository>();
+            var modelprovider = provider.GetService<IModelProvider>();
+
+            var type_User = modelprovider.GetType("User");
+            var user = type_User.Instan();
+
+            repository.Delete("User", string.Format("Id <> \"{0}\"", Guid.Empty));
+            repository.Save();
+        }
+
+
     }
 }

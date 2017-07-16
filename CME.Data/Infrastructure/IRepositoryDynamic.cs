@@ -14,10 +14,10 @@ namespace CME.Data.Infrastructure
         void Update(DynamicEntity entity);
         void Delete(DynamicEntity entity);
         void Delete(string entityName, string where);
-        DynamicEntity GetById(Guid Id);
-        DynamicEntity Get(Expression<Func<DynamicEntity, bool>> where);
-        IEnumerable<DynamicEntity> GetAll();
-        IEnumerable<DynamicEntity> GetMany(Expression<Func<DynamicEntity, bool>> where);
+        DynamicEntity GetById(string typeName,Guid Id);
+        DynamicEntity Get(string typeName,string where);
+        IEnumerable<DynamicEntity> GetAll(string typeName);
+        IEnumerable<DynamicEntity> GetMany(string typeName,string where);
 
         IQueryable GetQueryByEntity(Type entityType);
     }

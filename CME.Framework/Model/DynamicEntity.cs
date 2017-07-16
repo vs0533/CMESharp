@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CME.Framework.Model
 {
-    public class DynamicEntity:IDisposable
+    public class DynamicEntity : IDisposable
     {
 
         private Dictionary<object, object> _attrs;
@@ -112,6 +112,10 @@ namespace CME.Framework.Model
             {
                 SetValue("Id", value);
             }
+        }
+        public DateTime CreateDate {
+            get { return GetValue<DateTime>("CreateDate"); }
+            set { SetValue("CreateDate", value); }
         }
         [Timestamp]
         [JsonIgnore]
