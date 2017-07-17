@@ -14,9 +14,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CME.Tests
@@ -51,6 +53,7 @@ namespace CME.Tests
             );
             _serviceCollection.AddScoped<EntityModelConfigService>();
             _serviceCollection.AddScoped<IModelProvider, DefaultModelProvider>();
+            _serviceCollection.AddScoped<IRelationshipProvider, RelationshipProvider>();
             _serviceCollection.AddScoped<IDynamicEntityRepository, DynamicEntityRepository>();
             //optionBuilder.
         }
@@ -162,22 +165,24 @@ namespace CME.Tests
                 ctx.Database.EnsureDeleted();
                 ctx.Database.EnsureCreated();
                 EntityMetaGroup group = new EntityMetaGroup();
-                group.Name = "默认分组";
+                group.Name = "单位管理";
+
+
 
                 EntityMeta meta_User = new EntityMeta();
-                meta_User.ClassName = "User";
+                meta_User.ClassName = "Student";
                 meta_User.EntityMetaGroup = group;
-                meta_User.EntityName = "单位用户";
+                meta_User.EntityName = "学员账号";
                 meta_User.Properties = new List<EntityPropertyMeta> {
                     new EntityPropertyMeta{
-                        Name = "用户代码",
+                        Name = "账号代码",
                         PropertyName = "UserCode",
                         ValueType = "string",
                         IsRequired = true,
                         Length = 50
                     },
                     new EntityPropertyMeta{
-                        Name = "用户名",
+                        Name = "姓名",
                         PropertyName = "Name",
                         ValueType = "string",
                         IsRequired = true,
@@ -196,6 +201,40 @@ namespace CME.Tests
                         ValueType = "guid",
                         IsRequired = true,
                         Foreign = "Unit.Id"
+                    },
+                    new EntityPropertyMeta{
+                        Name = "科目ID",
+                        PropertyName = "ExamSubjectID",
+                        ValueType = "guid",
+                        Foreign = "ExamSubject.Id",
+                        IsRequired = true
+                    }
+                };
+
+                EntityMeta meta_Unitcategory = new EntityMeta();
+                meta_Unitcategory.ClassName = "UnitCategory";
+                meta_Unitcategory.EntityMetaGroup = group;
+                meta_Unitcategory.EntityName = "单位类型";
+                meta_Unitcategory.Properties = new List<EntityPropertyMeta> {
+                    new EntityPropertyMeta{
+                        Name = "类型名称",
+                        PropertyName = "Name",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
+                    }
+                };
+                EntityMeta meta_level = new EntityMeta();
+                meta_level.ClassName = "UnitLevel";
+                meta_level.EntityMetaGroup = group;
+                meta_level.EntityName = "单位级别";
+                meta_level.Properties = new List<EntityPropertyMeta> {
+                    new EntityPropertyMeta{
+                        Name = "级别名称",
+                        PropertyName = "Name",
+                        ValueType = "string",
+                        IsRequired = true,
+                        Length = 50
                     }
                 };
 
@@ -212,18 +251,102 @@ namespace CME.Tests
                         Length = 50
                     },
                     new EntityPropertyMeta{
-                        Name = "单位级别",
-                        PropertyName = "Level",
+                        Name = "单位类型ID",
+                        PropertyName = "UnitCategory",
+                        ValueType = "guid",
+                        Foreign="UnitCategory.Id",
+                        IsRequired = true
+                    },
+                    new EntityPropertyMeta{
+                        Name = "单位级别ID",
+                        PropertyName = "UnitLevelId",
+                        ValueType = "guid",
+                        Foreign="UnitLevel.Id",
+                        IsRequired = true
+                    },
+                };
+
+                EntityMeta meta_examsubject = new EntityMeta();
+                meta_examsubject.ClassName = "ExamSubject";
+                meta_examsubject.EntityMetaGroup = group;
+                meta_examsubject.EntityName = "科目信息";
+                meta_examsubject.Properties = new List<EntityPropertyMeta>
+                {
+                    new EntityPropertyMeta{
+                        Name = "科目名称",
+                        PropertyName = "Name",
                         ValueType = "string",
                         IsRequired = true,
                         Length = 50
                     }
                 };
 
+                EntityMeta meta_apply = new EntityMeta();
+                meta_apply.ClassName = "Apply";
+                meta_apply.EntityMetaGroup = group;
+                meta_apply.EntityName = "学员报名";
+                meta_apply.Properties = new List<EntityPropertyMeta>
+                {
+                    new EntityPropertyMeta{
+                        Name = "科目ID",
+                        PropertyName = "ExamSubjectID",
+                        ValueType = "guid",
+                        Foreign = "ExamSubject.Id",
+                        IsRequired = true
+                    },
+                    new EntityPropertyMeta{
+                        Name = "学员ID",
+                        PropertyName = "StudentID",
+                        ValueType = "guid",
+                        Foreign = "Student.Id",
+                        IsRequired = true
+                    }
+                };
+
+                EntityMeta meta_examresult = new EntityMeta();
+                meta_examresult.ClassName = "ExamResult";
+                meta_examresult.EntityMetaGroup = group;
+                meta_examresult.EntityName = "考试成绩";
+                meta_examresult.Properties = new List<EntityPropertyMeta>
+                {
+                    new EntityPropertyMeta{
+                        Name = "科目ID",
+                        PropertyName = "ExamSubjectID",
+                        ValueType = "guid",
+                        Foreign = "ExamSubject.Id",
+                        IsRequired = true
+                    },
+                    new EntityPropertyMeta{
+                        Name = "学员ID",
+                        PropertyName = "StudentID",
+                        ValueType = "guid",
+                        Foreign = "Student.Id",
+                        IsRequired = true
+                    },
+                    //new EntityPropertyMeta{
+                    //    Name = "报名信息",
+                    //    PropertyName = "ApplyID",
+                    //    ValueType = "guid",
+                    //    Foreign = "Apply.Id",
+                    //    IsRequired = true
+                    //},
+                    new EntityPropertyMeta{
+                        Name = "分数",
+                        PropertyName = "Score",
+                        ValueType = "int",
+                        IsRequired = true
+                    }
+                };
+
+                ctx.Add(group);
+                ctx.Add(meta_Unitcategory);
+                ctx.Add(meta_level);
                 ctx.Add(meta_User);
                 ctx.Add(meta_Unit);
+                ctx.Add(meta_examsubject);
+                ctx.Add(meta_apply);
+                ctx.Add(meta_examresult);
                 ctx.SaveChanges();
-                
             }
 
         }
@@ -339,6 +462,40 @@ namespace CME.Tests
             modelprovider.ClearCacheReLoad();
         }
 
+        [TestMethod]
+        public void TestRelationship_Parent()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var relationship = provider.GetService<IRelationshipProvider>();
+            var modelconfig = provider.GetService<EntityModelConfigService>();
 
+            var userconfig = modelconfig.GetEntityMetas().FirstOrDefault(c => c.ClassName == "Apply");
+
+           var r = relationship.GetParents(userconfig);
+
+            StringBuilder sb = new StringBuilder();
+            //foreach (var item in r)
+            //{
+
+            //    var result = (string.Format("{0}:{1}",
+            //        item.ClassName,
+            //        string.Join("->", item.Select(c => c.ClassName))
+            //        ));
+            //    Console.WriteLine(result);
+            //    Debug.WriteLine(result);
+            //    sb.Append(result);
+            //}
+        }
+        [TestMethod]
+        public void TestRelationship_Child()
+        {
+            IServiceProvider provider = _serviceCollection.BuildServiceProvider();
+            var relationship = provider.GetService<IRelationshipProvider>();
+            var modelconfig = provider.GetService<EntityModelConfigService>();
+
+            var userconfig = modelconfig.GetEntityMetas().FirstOrDefault(c => c.ClassName == "Unit");
+
+            var s = relationship.GetChilds(userconfig);
+        }
     }
 }

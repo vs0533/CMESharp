@@ -1,4 +1,5 @@
 ﻿using CME.Framework.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,16 @@ namespace CME.Framework.Data
         [ForeignKey("EntityMetaGroupId")]
         public EntityMetaGroup EntityMetaGroup { get; set; }
         public IEnumerable<EntityPropertyMeta> Properties { get; set; }
+        
+        [NotMapped]
+        public EntityMeta Parent { get; set; }
+        [NotMapped]
+        public EntityMeta Childs { get; set; }
+
+        public override string ToString()
+        {
+            return this.EntityName;
+        }
     }
     /// <summary>
     /// 实体配置元数据 - 实体类的属性

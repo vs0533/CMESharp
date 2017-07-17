@@ -34,6 +34,7 @@ namespace CME.Framework.Extentsion
         }
         public static void UseIsRequest(this EntityProperty ep, EntityPropertyMeta meta)
         {
+            
             if (meta.IsRequired)
             {
                 EntityAttribute ea = new EntityAttribute();
@@ -45,7 +46,8 @@ namespace CME.Framework.Extentsion
         }
         public static void UseStringLength(this EntityProperty ep, EntityPropertyMeta meta)
         {
-            if (meta.Length > 0)
+            //设置字段长度 并且 类型不是guid的有效
+            if (meta.Length > 0 && meta.ValueType != "guid")
             {
                 EntityAttribute ea = new EntityAttribute();
                 ea.AttributeType = typeof(StringLengthAttribute);
